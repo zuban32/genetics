@@ -70,7 +70,7 @@
              (comb (cdr lst) k)))))
   
   (define (bruteforce graph cycles depth)
-    (if (< K depth)
+    (if (or (< K depth) (null? cycles))
         #f
         (let ((result (ormap(lambda(verts)
                               (andmap(lambda(cycle)
@@ -92,4 +92,4 @@
   (start-bruteforce  (list (cons 0 1) (cons 1 2) (cons 2 0) (cons 3 4) (cons 4 5) (cons 5 3)))
   )
 
-(gen-test 2)
+(gen-test 1)
