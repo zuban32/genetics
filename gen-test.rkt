@@ -5,17 +5,18 @@
 
 (define (gen-test K)
   
-  (let ((file (open-output-file "tests.txt" #:mode 'text #:exists 'replace))(graphs (gen-graphs 0 3)))
+  (let ((file (open-output-file "tests.txt" #:mode 'text #:exists 'replace)) (graphs (gen-graphs 0 3)))
     (begin 
       (for-each (lambda (graph)(begin
                                  (writeln graph file)
-                                 (let ((result (start-bruteforce graph)))
+                                 (let ((result (start-bruteforce graph K)))
                                    (if (equal? result #f)
-                                       (writeln result file)
+                                       (writeln (list result) file)
                                        (begin
-                                         (writeln (car result) file)
-                                         (writeln (cadr result) file)
-                                         (writeln (caddr result) file)
+                                         (writeln (flatten result) file)
+                                         ;(writeln (car result) file)
+                                         ;(writeln (cadr result) file)
+                                         ;(writeln (caddr result) file)
                                          ))
                                    )))
                 graphs)  

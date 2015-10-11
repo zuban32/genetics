@@ -5,6 +5,7 @@
 (provide gen-graphs)
 (provide find-cycles)
 (provide count-verts)
+(provide get-verts)
 
 (define (gen-graph num)
   (define (gen-edge)
@@ -17,11 +18,14 @@
 
 (define (gen-graphs iter bound)
   (if (< iter bound)
-      (cons (gen-graph (gen-random (random 30))) (gen-graphs (add1 iter) bound))
+      (cons (gen-graph (gen-random 30)) (gen-graphs (add1 iter) bound))
       '()))
 
 (define (count-verts graph)
   (foldl (lambda (a res)(max (car a) (cdr a) res)) 0 graph))
+
+(define (get-verts graph)
+  (remove-duplicates (foldl (lambda(arg result)(cons (car arg)(cons (cdr arg) result))) '() graph)))
 
 (define (cyclic? lst1 lst2)
   (let* ((tail (member (car lst1) lst2))(pos (- (length lst2) (if (equal? #f tail) 0 (length tail)))))
