@@ -7,7 +7,7 @@
 
 (define (gen-test K)
   
-  (let ((file (open-output-file "tests.txt" #:mode 'text #:exists 'replace)) (graphs (gen-graphs 0 GRAPHS_NUM)))
+  (let ((file (open-output-file "tests.txt" #:mode 'text #:exists 'replace)) (graphs (list (gen-complete-graph 0 3))))
     (begin 
       (for-each (lambda (graph)(begin
                                  (writeln graph file)

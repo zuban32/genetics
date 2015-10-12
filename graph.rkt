@@ -6,16 +6,23 @@
 (provide find-cycles)
 (provide count-verts)
 (provide get-verts)
+(provide gen-edge)
+(provide gen-complete-graph)
+
+(define (gen-edge in out)
+  (if (= in out) (cons in (+ (gen-random 5) out)) (cons in out)))
 
 ; graph edges count depends in num
 (define (gen-graph num)
-  (define (gen-edge)
-    (let ((in (random num))(out (random num)))
-      (if (= in out) (cons in (+ (gen-random 5) out)) (cons in out))))
   (define (add-edge cur)
     (if (< cur 0) '()
-        (cons (gen-edge) (add-edge (- cur 1)))))
+        (cons (gen-edge (random num) (random num)) (add-edge (- cur 1)))))
   (remove-duplicates (add-edge (+ num (random num)))))
+
+(define (gen-complete-graph iter num)
+  (if (< iter num)
+      (append (foldl (lambda (arg result) (if (= arg iter) result (cons (cons iter arg) result))) '() (range num)) (gen-complete-graph (add1 iter) num))
+      '()))
 
 (define (gen-graphs iter max)
   (if (< iter max)
@@ -69,3 +76,5 @@
 
 (define (find-cycles graph)
   (dfs graph))
+
+;(gen-graphs 0 3)
