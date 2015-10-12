@@ -8,33 +8,60 @@
 (provide get-verts)
 (provide gen-edge)
 (provide gen-complete-graph)
+(provide gen-cyclic-graph)
+(provide gen-acyclic-graph)
 
-(define (gen-edge in out)
-  (if (= in out) (cons in (+ (gen-random 5) out)) (cons in out)))
-
-; graph edges count depends in num
-(define (gen-graph num)
-  (define (add-edge cur)
-    (if (< cur 0) '()
-        (cons (gen-edge (random num) (random num)) (add-edge (- cur 1)))))
-  (remove-duplicates (add-edge (+ num (random num)))))
-
-(define (gen-complete-graph iter num)
-  (if (< iter num)
-      (append (foldl (lambda (arg result) (if (= arg iter) result (cons (cons iter arg) result))) '() (range num)) (gen-complete-graph (add1 iter) num))
-      '()))
-
-(define (gen-graphs iter max)
-  (if (< iter max)
-      (cons (gen-graph (gen-random 30)) (gen-graphs (add1 iter) max))
-      '()))
-
-(define (count-verts graph)
-  (foldl (lambda (a res)(max (car a) (cdr a) res)) 0 graph))
+(define MAX_EDGES 50)
 
 (define (get-verts graph)
   (remove-duplicates (foldl (lambda(arg result)(cons (car arg)(cons (cdr arg) result))) '() graph)))
 
+(define (count-verts graph)
+  (length (get-verts graph)))
+
+; creates an edge from IN to OUT
+(define (gen-edge in out)
+  (if (= in out) (cons in (+ (gen-random 5) out)) (cons in out)))
+
+; graph edges count depends on NUM
+(define (gen-graph num)
+  (define (add-edge cur)
+    (if (< cur 0) '()
+        (cons (gen-edge (random num) (random num)) (add-edge (sub1 cur)))))
+  (let ((result (add-edge (+ num (random num)))))
+    (cons (remove-duplicates result) (gen-random (count-verts result)))))
+
+; generates complete graph with NUM vertices
+(define (gen-complete-graph num)
+  (define (add-edge iter)
+    (if (< iter num)
+        (append (foldl (lambda (arg result) (if (= arg iter) result (cons (cons iter arg) result))) '() (range num)) (add-edge (add1 iter)))
+        '()))
+  (add-edge 0))
+
+(define (gen-cyclic-graph max)
+  (define (add-edge cur)
+    (cond ((= cur (sub1 max)) (list (gen-edge (sub1 max) 0)))
+          (else (cons (gen-edge cur (add1 cur)) (add-edge (add1 cur))))
+          ))
+  (remove-duplicates (cons (gen-edge (floor (/ max 2)) 0) (add-edge 0))))
+
+(define (gen-acyclic-graph max)
+  (define (add-edge cur)
+    (cond ((= cur (sub1 max)) (list (gen-edge 0 (sub1 max))))
+          (else (cons (gen-edge cur (add1 cur)) (add-edge (add1 cur))))
+          ))
+  (remove-duplicates (add-edge 0)))
+
+; generates MAX random graphs
+(define (gen-graphs max)
+  (define (iter i)
+    (if (< i max)
+        (cons (gen-graph (gen-random MAX_EDGES)) (iter (add1 i)))
+        '()))
+  (iter 0))
+
+; checks whether LST2 is a cyclic permutation of LST1
 (define (cyclic? lst1 lst2)
   (let* ((tail (member (car lst1) lst2))(pos (- (length lst2) (if (equal? #f tail) 0 (length tail)))))
     (equal?
@@ -42,8 +69,8 @@
      (append (drop lst2 pos) (take lst2 pos))
      )))
 
+; starts depth-first search for GRAPH
 (define (dfs graph)
-  
   (define (dfs-step edge vis cur-cycle)
     (begin
       (if (member (cdr edge) vis)
@@ -73,8 +100,6 @@
                       '()
                       (range (add1 (count-verts graph)))) cyclic?))
 
-
+; returns all cycles existing in GRAPH 
 (define (find-cycles graph)
   (dfs graph))
-
-;(gen-graphs 0 3)
