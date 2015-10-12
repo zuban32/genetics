@@ -15,7 +15,9 @@
   (call-with-input-file "tests.txt" (lambda(in)(read-single-test in))))
 
 (define (solve graph max)
-  (start-bruteforce graph max))
+  ;(if (= 0 (random 3))
+      ;'(-1)
+      (start-bruteforce graph max));)
 
 (define (run-test tests acc succ total max)
   (if (null? tests)
@@ -31,10 +33,10 @@
           (printf "Correct result: ~v\n" (cadar tests))
           (if (equal? eq #t)
               (begin 
-                (writeln 'Passed)
+                (printf "Passed\n\n")
                 (run-test (cdr tests) (and acc eq) (add1 succ) (add1 total) max))
               (begin
-                (writeln 'Failed)
+                (printf "Failed\n\n")
                 (run-test (cdr tests) (and acc eq) succ (add1 total) max)))
           ))
       ))

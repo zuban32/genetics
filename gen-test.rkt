@@ -3,9 +3,11 @@
 (require "graph.rkt")
 (require "solve.rkt")
 
+(define GRAPHS_NUM 100)
+
 (define (gen-test K)
   
-  (let ((file (open-output-file "tests.txt" #:mode 'text #:exists 'replace)) (graphs (gen-graphs 0 3)))
+  (let ((file (open-output-file "tests.txt" #:mode 'text #:exists 'replace)) (graphs (gen-graphs 0 GRAPHS_NUM)))
     (begin 
       (for-each (lambda (graph)(begin
                                  (writeln graph file)

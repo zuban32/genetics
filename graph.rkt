@@ -7,6 +7,7 @@
 (provide count-verts)
 (provide get-verts)
 
+; graph edges count depends in num
 (define (gen-graph num)
   (define (gen-edge)
     (let ((in (random num))(out (random num)))
@@ -14,11 +15,11 @@
   (define (add-edge cur)
     (if (< cur 0) '()
         (cons (gen-edge) (add-edge (- cur 1)))))
-  (remove-duplicates (add-edge (+ (/ num 2) (random num)))))
+  (remove-duplicates (add-edge (+ num (random num)))))
 
-(define (gen-graphs iter bound)
-  (if (< iter bound)
-      (cons (gen-graph (gen-random 30)) (gen-graphs (add1 iter) bound))
+(define (gen-graphs iter max)
+  (if (< iter max)
+      (cons (gen-graph (gen-random 30)) (gen-graphs (add1 iter) max))
       '()))
 
 (define (count-verts graph)
