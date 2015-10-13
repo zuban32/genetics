@@ -5,7 +5,7 @@
 
 (define GRAPH_CYCLE_LENGTH 200)
 (define RANDOM_GRAPHS_NUM 100)
-(define MAX_COMPLETE_GRAPH 26)
+(define MAX_COMPLETE_GRAPH 6)
 
 ;generates graphs for testing
 (define (gen-test-graphs)

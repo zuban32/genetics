@@ -11,7 +11,6 @@
 
 (define (bruteforce graph cycles depth max)
   (begin
-    ;(printf "Brute level ~v\n" depth)
     (if (or (< max depth) (null? cycles))
         #f
         (let ((result (ormap(lambda(verts)
@@ -24,4 +23,4 @@
                       #f
                       )
               (bruteforce graph cycles (add1 depth) max)
-              (list #t (length result) result))))))
+              (list #t (length result) (sort result <)))))))

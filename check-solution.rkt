@@ -13,7 +13,7 @@
   (call-with-input-file "tests.txt" (lambda(in)(read-single-test in))))
 
 (define (solve graph max)
-      (start-bruteforce graph max));)
+      (start-bruteforce graph max))
 
 (define (run-test tests acc succ total)
   (if (null? tests)
@@ -23,7 +23,6 @@
         )
       (let* ((result (flatten (solve (caaar tests) (cdaar tests))))(eq (equal? result (cadar tests))))
         (begin
-          ;(printf "Current test ~v\n" (car tests))
           (printf "Running test #~v\n" total)
           (printf "Result: ~v\n" result)
           (printf "Correct result: ~v\n" (cadar tests))

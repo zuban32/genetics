@@ -43,7 +43,7 @@
   (let ((vert-num (count-verts graph)))
     (if (< K (sub1 vert-num))
         (list #f)
-        (append (list #t (sub1 K) (sub1 K)) (range (- vert-num 2)))
+        (append (list #t (sub1 K)) (flatten (append (range (- vert-num 2)) (sub1 vert-num))))
           )
     ))
 
