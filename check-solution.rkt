@@ -33,7 +33,7 @@
                 (run-test (cdr tests) (and acc eq) (add1 succ) (add1 total)))
               (begin
                 (printf "Failed\n\n")
-                (run-test (cdr tests) (and acc eq) succ (add1 total) max)))
+                (run-test (cdr tests) (and acc eq) succ (add1 total))))
           ))
       ))
 

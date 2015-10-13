@@ -5,18 +5,15 @@
 
 (define GRAPH_CYCLE_LENGTH 200)
 (define RANDOM_GRAPHS_NUM 100)
-(define MAX_COMPLETE_GRAPH 6)
+(define MAX_COMPLETE_GRAPH 26)
 
 ;generates graphs for testing
 (define (gen-test-graphs)
   (append
-   (let ((complete-graph (gen-complete-graph MAX_COMPLETE_GRAPH)))
-     (list
-      (cons (gen-cyclic-graph GRAPH_CYCLE_LENGTH) 3)
-      (cons (gen-acyclic-graph GRAPH_CYCLE_LENGTH) 3)
-      (cons complete-graph (sub1 MAX_COMPLETE_GRAPH))
-      (cons complete-graph (- MAX_COMPLETE_GRAPH 2))
-      ))
+   (list
+    (cons (gen-cyclic-graph GRAPH_CYCLE_LENGTH) GRAPH_CYCLE_LENGTH)
+    (cons (gen-acyclic-graph GRAPH_CYCLE_LENGTH) GRAPH_CYCLE_LENGTH)
+    )
    (gen-graphs RANDOM_GRAPHS_NUM)
    ))
 
@@ -30,10 +27,16 @@
                                        (writeln (list result) file)
                                        (writeln (flatten result) file)
                                        ))))
-                graphs)  
+                graphs)
+      (let ((complete-graph (gen-complete-graph MAX_COMPLETE_GRAPH)))
+        (begin 
+          (writeln (cons complete-graph MAX_COMPLETE_GRAPH) file)
+          (writeln (gen-complete-graph-answer complete-graph MAX_COMPLETE_GRAPH) file)
+          (writeln (cons complete-graph (- MAX_COMPLETE_GRAPH 2)) file)
+          (writeln (gen-complete-graph-answer complete-graph (- MAX_COMPLETE_GRAPH 2)) file)
+          ))
       (close-output-port file)
-      )
-    ))
+      )))
 
 (gen-test)
 

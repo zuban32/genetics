@@ -10,8 +10,8 @@
 (provide gen-complete-graph)
 (provide gen-cyclic-graph)
 (provide gen-acyclic-graph)
-
-(define MAX_EDGES 50)
+(provide gen-complete-graph-answer)
+(define MAX_EDGES 30)
 
 (define (get-verts graph)
   (remove-duplicates (foldl (lambda(arg result)(cons (car arg)(cons (cdr arg) result))) '() graph)))
@@ -38,6 +38,14 @@
         (append (foldl (lambda (arg result) (if (= arg iter) result (cons (cons iter arg) result))) '() (range num)) (add-edge (add1 iter)))
         '()))
   (add-edge 0))
+
+(define (gen-complete-graph-answer graph K)
+  (let ((vert-num (count-verts graph)))
+    (if (< K (sub1 vert-num))
+        (list #f)
+        (append (list #t (sub1 K) (sub1 K)) (range (- vert-num 2)))
+          )
+    ))
 
 (define (gen-cyclic-graph max)
   (define (add-edge cur)
