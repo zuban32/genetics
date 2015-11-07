@@ -15,8 +15,7 @@
         #f
         (let ((result (ormap(lambda(verts)
                               (andmap(lambda(cycle)
-                                       (ormap (lambda(cycle-vert)(member cycle-vert verts))
-                                              cycle))
+                                       (if (intersects? cycle verts) verts #f))
                                      cycles))
                             (comb (get-verts graph) depth))))
           (if (equal? result

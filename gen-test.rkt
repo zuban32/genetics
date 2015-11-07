@@ -26,18 +26,17 @@
                                    (if (equal? result #f)
                                        (writeln (list result) file)
                                        (writeln (flatten result) file)
-                                       ))))
+                                       ))
+                                 ))
                 graphs)
       (let ((complete-graph (gen-complete-graph MAX_COMPLETE_GRAPH)))
         (begin 
           (writeln (cons complete-graph MAX_COMPLETE_GRAPH) file)
           (writeln (gen-complete-graph-answer complete-graph MAX_COMPLETE_GRAPH) file)
-          (writeln (cons complete-graph (- MAX_COMPLETE_GRAPH 2)) file)
-          (writeln (gen-complete-graph-answer complete-graph (- MAX_COMPLETE_GRAPH 2)) file)
+          (writeln (cons complete-graph (- MAX_COMPLETE_GRAPH 3)) file)
+          (writeln (gen-complete-graph-answer complete-graph (- MAX_COMPLETE_GRAPH 3)) file)
           ))
       (close-output-port file)
       )))
 
 (gen-test)
-
-;(list (cons 0 1) (cons 1 2) (cons 2 0) (cons 3 4) (cons 4 5) (cons 5 3))

@@ -8,6 +8,7 @@
 (provide get-verts)
 (provide gen-edge)
 (provide gen-complete-graph)
+(provide gen-graph)
 (provide gen-cyclic-graph)
 (provide gen-acyclic-graph)
 (provide gen-complete-graph-answer)
