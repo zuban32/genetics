@@ -8,6 +8,19 @@
 
 (provide genetics-solve)
 
+(define (mutate popul verts)
+  (define (mutate-person lst)
+    (remove-duplicates (map (lambda (arg) (if (= 0 (random 3)) (pick-random verts) arg)) lst)))
+  (define (mutate-step lst num)
+    (if (< num 1)
+        lst
+        (cons (mutate-person (car lst)) (mutate-step (cdr lst) (- num 1)))
+        ))
+  (mutate-step (shuffle popul) (/ (length popul) 3))
+  )
+
+;(mutate '((1 2 3) (2 4 6) (3 5 7 8 9) (1 3 5)) (range 10))
+
 (define (start-popul k verts popul-len)
   (define (create-popul lst len vert)
     (if (= len 0)
@@ -40,7 +53,7 @@
   (let ((out (gen-out-verts verts cycles)))
     (filter (lambda(arg)(not (member arg out))) verts)))
 
-(define MAX_ITER 100)
+(define MAX_ITER 25)
 
 (define (genetics-solve graph k)
   (define (start-gen popul cycles iter)   
@@ -77,12 +90,12 @@
                (list (list #f))
                (let ((res (filter (lambda (arg) (= 1 (fit arg))) popul)) (mean (* (average (map fit popul)) 1)))
                  (if (null? res)
-                     (start-gen (filter (lambda (arg) (< mean (fit arg))) (append popul (reprod popul))) cycles (- iter 1))
+                     (start-gen (filter (lambda (arg) (< mean (fit arg))) (mutate (append popul (reprod popul)) (get-verts graph))) cycles (- iter 1))
                      res
                      ))
-               ;)
+      ;         )
            ))
-  (let* ((cycles (find-cycles graph)) (res (argmin length (start-gen (map (lambda (x) (normalize x cycles)) (start-popul k (get-verts graph) 500)) cycles MAX_ITER))))
+  (let* ((cycles (find-cycles graph)) (res (argmin length (start-gen (map (lambda (x) (normalize x cycles)) (start-popul k (get-verts graph) 100)) cycles MAX_ITER))))
     (if (equal? (car res) #f)
         #f
         (list (not (equal? (car res) #f)) (length res) res))))
@@ -94,9 +107,9 @@
 ;(fit '(1 3) '((1 2 3) (1 3) (1 3 4) (2 3)))
 ;(start-popul 5 '(1 2 3 4 5 6 7) 10)
 ;(let* ((test-graph (cons (gen-complete-graph 6) 6))(res (genetics-solve (car test-graph) (cdr test-graph) 25)))
-;(let* ((test-graph (gen-graph 25)) (res (genetics-solve (car test-graph) (cdr test-graph))))
- ; (begin
+(let* ((test-graph (gen-graph 25)) (res (genetics-solve (car test-graph) (cdr test-graph))))
+  (begin
     ;(println (find-cycles (car test-graph)))
-  ;  (println res)
+    (println res)
     ;(println (normalize (cadr res) (find-cycles (car test-graph))))
-   ; (println (start-bruteforce (car test-graph) (cdr test-graph)))))
+    (println (start-bruteforce (car test-graph) (cdr test-graph)))))
