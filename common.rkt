@@ -7,6 +7,12 @@
 (provide full-in?)
 (provide average)
 
+
+(define (prob n1 n2)
+  (if (= 0 n1)
+      0
+      (< (random n1) n2)))
+
 (define (comb lst k)
   (cond
     ((zero? k) '(()))

@@ -42,9 +42,9 @@
           (if (equal? eq #t)
               (begin 
                 (printf "Passed\n")
-                (if (and (not (equal? #f (car result))) (not (equal? (cadr result)(cadr (cadar tests)))))
-                    (printf "Not minimal\n")
-                    '())
+                ;(if (and (not (equal? #f (car result))) (not (equal? (cadr result)(cadr (cadar tests)))))
+                    ;(printf "Not minimal\n")
+                    ;'())
                 (printf "\n")
                 (run-test (cdr tests) (and acc eq) (add1 succ) (add1 total) failed))
               (begin
