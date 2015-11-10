@@ -37,14 +37,11 @@
       (let* ((result (flatten (solve (caaar tests) (cdaar tests))))(eq (or (and (equal? #f (car result)) (equal? #f (caadar tests))) (and (equal? (car result) (caadar tests)) (equal? #t (answer-correct? result (caaar tests)))))))
         (begin
           (printf "Running test #~v\n" total)
-          (printf "Result: ~v\n" result)
-          (printf "Correct result: ~v\n" (cadar tests))
+          ;(printf "Result: ~v\n" result)
+          ;(printf "Correct result: ~v\n" (cadar tests))
           (if (equal? eq #t)
               (begin 
                 (printf "Passed\n")
-                ;(if (and (not (equal? #f (car result))) (not (equal? (cadr result)(cadr (cadar tests)))))
-                    ;(printf "Not minimal\n")
-                    ;'())
                 (printf "\n")
                 (run-test (cdr tests) (and acc eq) (add1 succ) (add1 total) failed))
               (begin
