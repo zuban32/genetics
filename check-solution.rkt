@@ -25,22 +25,16 @@
 
 (define (solve graph max)
   (genetics-solve graph max #f))
-;(start-bruteforce graph max))
+  ;(start-bruteforce graph max))
 
-(define (run-test tests acc succ total notmin)
+(define (run-test tests acc succ total failed)
   (if (null? tests)
       (begin
         (printf "Tests passed: ~v of ~v\n" succ (sub1 total))
-        (printf "Notmin: ~v ~v\n" (length notmin) notmin)
+        (printf "Failed: ~v\n" failed)
         (if (equal? #t acc) (printf "Success!\n") (printf "Fail!\n"))
         )
-      (let* (
-             (result
-              (flatten (solve (caaar tests) (cdaar tests)))
-              )
-             (eq (or
-                  (and (equal? #f (car result)) (equal? #f (caadar tests)))
-                  (and (equal? (car result) (caadar tests)) (equal? #t (answer-correct? result (caaar tests)))))))
+      (let* ((result (flatten (solve (caaar tests) (cdaar tests))))(eq (or (and (equal? #f (car result)) (equal? #f (caadar tests))) (and (equal? (car result) (caadar tests)) (equal? #t (answer-correct? result (caaar tests)))))))
         (begin
           (printf "Running test #~v\n" total)
           ;(printf "Result: ~v\n" result)
@@ -48,17 +42,11 @@
           (if (equal? eq #t)
               (begin 
                 (printf "Passed\n")
-                (if (and (not (equal? #f (car result))) (not (equal? (cadr result)(cadr (cadar tests)))))
-                    (begin
-                      (printf "Not minimal\n\n")
-                      (run-test (cdr tests) (and acc eq) (add1 succ) (add1 total) (cons total notmin)))
-                    (begin
-                      (printf "\n")
-                      (run-test (cdr tests) (and acc eq) (add1 succ) (add1 total) notmin)
-                      )))
+                (printf "\n")
+                (run-test (cdr tests) (and acc eq) (add1 succ) (add1 total) failed))
               (begin
                 (printf "Failed\n\n")
-                (run-test (cdr tests) (and acc eq) succ (add1 total) notmin)))
+                (run-test (cdr tests) (and acc eq) succ (add1 total) (cons total failed))))
           ))
       ))
 
