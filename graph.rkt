@@ -12,10 +12,20 @@
 (provide gen-cyclic-graph)
 (provide gen-acyclic-graph)
 (provide gen-complete-graph-answer)
+(provide make-edges)
+
 (define MAX_EDGES 30)
 
+; is necessary for converting cycles as list of vertices into a list of edges during visualising
+(define (make-edges lst)
+  (define (make-edges-step lst prev first)
+    (cond ((null? prev) (cons (cons (car lst) (cadr lst)) (make-edges-step (cddr lst) (cadr lst) (car lst))))
+          ((null? lst) (list (cons prev first)))
+          (else (cons (cons prev (car lst)) (make-edges-step (cdr lst) (car lst) first)))))
+  (make-edges-step lst '() '()))
+
 (define (get-verts graph)
-  (remove-duplicates (foldl (lambda(arg result)(cons (car arg)(cons (cdr arg) result))) '() graph)))
+  (remove-duplicates (flatten graph)))
 
 (define (count-verts graph)
   (length (get-verts graph)))
