@@ -9,6 +9,8 @@
 (define POINT_RADIUS 4)
 (define POINT_DIAM (* 2 POINT_RADIUS))
 
+(provide FIELD_WIDTH)
+(provide FIELD_HEIGHT)
 (provide draw-graph)
 
 ;(define target (make-bitmap FIELD_WIDTH FIELD_HEIGHT))
