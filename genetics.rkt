@@ -95,7 +95,7 @@
       
       (define (mutate popul verts)
         (define (mutate-person lst)
-          (if (member lst (top popul (/ (length popul) 4)))
+          (if (member lst (bottom popul (/ (length popul) 5)))
               (remove-duplicates (map (lambda (arg) (if (= 0 (random 10)) (pick-random verts) arg)) lst))
               lst))
         (define (mutate-step lst num)
@@ -128,20 +128,20 @@
             (if (null? res)
                 (let* (
                        (new-popul (append popul (reprod popul)))
-                       (surv (top (top new-popul (length popul)) (length popul)))
+                       (surv (top (mutate (top new-popul (length popul)) (get-verts graph)) (length popul)))
                        (best (fit (car surv)))
                        (worst (fit (list-ref surv (sub1 (length surv)))))
                        (mean (average (map fit surv)))
                        )
                   (if (equal? #t enable-visual)
-                      (let* ((new-dc (new bitmap-dc% (bitmap (make-bitmap FIELD_WIDTH FIELD_HEIGHT)))) (draw (draw-graph new-dc (car surv) cycles)) (iter-num (add1 (- MAX_ITER iter))))
+                      (let* ((new-dc (new bitmap-dc% (bitmap (make-bitmap FIELD_WIDTH FIELD_HEIGHT)))) (draw (draw-graph new-dc (argmin length (filter (lambda(arg)(= (fit arg) best)) surv)) cycles)) (iter-num (add1 (- MAX_ITER iter))))
                         (step-gen surv cycles (- iter 1) (cons new-dc dcs) (cons (list iter-num best) maxs) (cons (list iter-num worst) mins) (cons (list iter-num mean) avs)))
                       (step-gen surv cycles (- iter 1) dcs maxs mins avs))
                   )
                 (if (equal? #t enable-visual)
                     (let* (
-                           (new-dc (new bitmap-dc% (bitmap (make-bitmap FIELD_WIDTH FIELD_HEIGHT))))
-                           (draw (draw-graph new-dc (argmin length res) cycles))
+                           ;(new-dc (new bitmap-dc% (bitmap (make-bitmap FIELD_WIDTH FIELD_HEIGHT))))
+                           ;(draw (draw-graph new-dc (argmin length res) cycles))
                            (max-p (if (= iter MAX_ITER) (list (list 0 100)) '()))
                            (min-p (if (= iter MAX_ITER) (list (list 0 (fit (list-ref (top popul (length popul)) (sub1 (length popul)))))) '()))
                            (av-p (if (= iter MAX_ITER) (list (list 0 (average (map fit popul)))) '()))
@@ -150,7 +150,7 @@
                                 (
                                  (plot-x-far-ticks no-ticks)
                                  (plot-y-far-ticks no-ticks)
-                                 (plot-x-ticks (linear-ticks #:divisors '(1)))
+                                 (plot-x-ticks (linear-ticks #:divisors '(1) #:number (add1 (- MAX_ITER iter))))
                                  )
                               (new bitmap-dc% (bitmap
                                                (plot-bitmap (list (axes)
@@ -168,7 +168,7 @@
                                                             #:legend-anchor 'bottom-right
                                                             )
                                                )))))
-                      (cons res (cons (cons graphic (cons new-dc dcs)) (add1 (- MAX_ITER iter)))
+                      (cons res (cons (cons graphic dcs) (add1 (- MAX_ITER iter)))
                             ))
                     res)
                 )
@@ -178,13 +178,16 @@
         (
          (popul (start-popul k (get-verts graph) 50))
          (sorted-popul (top popul (length popul)))
+         (best (fit (car sorted-popul)))
+         (dc0 (if enable-visual (new bitmap-dc% (bitmap (make-bitmap FIELD_WIDTH FIELD_HEIGHT))) '()))
+         (draw (if enable-visual (draw-graph dc0 (argmin length (filter (lambda(arg)(= (fit arg) best)) sorted-popul)) cycles) '()))
          (tmp-res
           (step-gen
            (map (lambda (x) (normalize x cycles)) popul)
            cycles
            MAX_ITER
-           '()
-           (list (list 0 (fit (car sorted-popul))))
+           (list dc0)
+           (list (list 0 best))
            (list (list 0 (fit (list-ref sorted-popul (sub1 (length sorted-popul))))))
            (list (list 0 (average (map fit popul)))))))
       tmp-res))
@@ -194,7 +197,7 @@
   
   (define frame (new frame%
                      (label "Genetics visualizer")
-                     (width FIELD_WIDTH)
+                     (width (* (/ 11 10) FIELD_WIDTH))
                      (height (/ FIELD_HEIGHT 4))))
   
   (let* (
@@ -250,11 +253,14 @@
   )
 
 (define graph
-  ;'(((1 . 5) (17 . 18) (5 . 13) (16 . 1) (7 . 13) (14 . 12) (2 . 15) (14 . 6) (14 . 5) (13 . 7) (6 . 14) (12 . 11) (6 . 7) (15 . 10) (6 . 4) (1 . 0) (7 . 3) (17 . 3) (7 . 6) (6 . 16) (4 . 3) (15 . 12) (4 . 5) (12 . 16) (4 . 15) (10 . 7) (15 . 7)) . 2)
-  '(((17 . 10) (3 . 10) (12 . 13) (7 . 2) (16 . 0) (4 . 7) (9 . 11) (1 . 13) (6 . 13) (8 . 0) (17 . 13) (8 . 12) (16 . 17) (7 . 18) (2 . 3) (15 . 19) (3 . 5) (19 . 8) (3 . 2) (5 . 14) (14 . 19) (1 . 11) (5 . 17) (0 . 16) (1 . 10) (10 . 2) (13 . 7) (6 . 16) (14 . 5) (18 . 14) (5 . 7) (18 . 7) (18 . 4) (5 . 6) (18 . 3) (4 . 12)) . 6)
+'(((27 . 35) (19 . 14) (33 . 4) (25 . 13) (23 . 3) (4 . 8) (22 . 26) (15 . 35) (38 . 12) (14 . 32) (10 . 39) (39 . 7) (18 . 0) (5 . 28) (30 . 25) (39 . 19) (29 . 10) (32 . 33) (0 . 38)
+            (7 . 12) (3 . 21) (24 . 12) (19 . 39) (34 . 32) (9 . 35) (27 . 11) (19 . 5) (33 . 3) (1 . 13) (0 . 17) (2 . 21) (39 . 37) (35 . 21) (32 . 19)
+            (35 . 5) (34 . 19) (20 . 13) (27 . 24) (26 . 20) (5 . 27) (24 . 26) (11 . 38) (11 . 4) (8 . 36) (14 . 9) (22 . 9) (33 . 21) (9 . 15) (25 . 35) (12 . 24) (16 . 33) (30 . 18) (24 . 32) (24 . 20)
+            (7 . 6) (11 . 16) (1 . 0) (17 . 5) (32 . 12) (31 . 6) (22 . 24) (6 . 39) (9 . 38) (7 . 39) (5 . 17) (4 . 6) (11 . 10) (1 . 15)) . 10)
   )
 
 
+(define (test-gen)
 ;(let* ((test-graph (cons (gen-complete-graph 6) 6))(res (genetics-solve (car test-graph) (cdr test-graph))))
 (let* ((test-graph graph) (res (genetics-solve (car test-graph) (cdr test-graph) #t)))
   (begin
@@ -262,5 +268,7 @@
     (printf "Cycles num: ~v\n" (length (find-cycles (car test-graph))))
     (printf "k = ~v\n" (cdr test-graph))
     (println res)
-    ;(println (start-bruteforce (car test-graph) (cdr test-graph)))
-    ))
+    (println (start-bruteforce (car test-graph) (cdr test-graph)))
+    )))
+
+;(test-gen)
