@@ -44,7 +44,7 @@
   (let ((out (gen-out-verts verts cycles))(in-cycles (remove-duplicates (flatten cycles))))
     (filter (lambda(arg)(not (member arg out))) verts)))
 
-(define MAX_ITER 2)
+(define MAX_ITER 30)
 
 (define (genetics-solve graph k enable-visual)
   (define (start-gen cycles)
@@ -95,7 +95,7 @@
       
       (define (mutate popul verts)
         (define (mutate-person lst)
-          (if (member lst (bottom popul (/ (length popul) 2)))
+          (if (member lst (bottom popul (/ (length popul) 5)))
               (remove-duplicates (map (lambda (arg) (if (= 0 (random 10)) (pick-random verts) arg)) lst))
               lst))
         (define (mutate-step lst num)
@@ -169,7 +169,7 @@
                                             )))))
                    (cons res (cons (cons graphic dcs) (add1 (- MAX_ITER iter)))
                          ))
-                 res)
+                 (if (null? res) (list (list #f)) res))
              )
          ))
       )
@@ -270,4 +270,4 @@
       (println res)
       )))
 
-(test-gen)
+;(test-gen)
