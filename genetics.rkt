@@ -264,14 +264,13 @@
 
 
 (define (test-gen)
-;(let* ((test-graph (cons (gen-complete-graph 6) 6))(res (genetics-solve (car test-graph) (cdr test-graph))))
-(let* ((test-graph (gen-graph 30)) (res (genetics-solve (car test-graph) (cdr test-graph) #t)))
+;(let* ((test-graph graph)(res (genetics-solve (car test-graph) (cdr test-graph))))
+(let* ((test-graph graph) (res (genetics-solve (car test-graph) (cdr test-graph) #t)))
   (begin
     (println test-graph)
     (printf "Cycles num: ~v\n" (length (find-cycles (car test-graph))))
     (printf "k = ~v\n" (cdr test-graph))
     (println res)
-    ;(println (start-bruteforce (car test-graph) (cdr test-graph)))
     )))
 
 (test-gen)
