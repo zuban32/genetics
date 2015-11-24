@@ -44,7 +44,7 @@
   (let ((out (gen-out-verts verts cycles))(in-cycles (remove-duplicates (flatten cycles))))
     (filter (lambda(arg)(not (member arg out))) verts)))
 
-(define MAX_ITER 30)
+(define MAX_ITER 2)
 
 (define (genetics-solve graph k enable-visual)
   (define (start-gen cycles)
@@ -95,11 +95,8 @@
       
       (define (mutate popul verts)
         (define (mutate-person lst)
-          (if (member lst (bottom popul (/ (length popul) 5)))
-              (let ((res (remove-duplicates (map (lambda (arg) (if (= 0 (random 10)) (pick-random verts) arg)) lst))))
-                (if (null? res)
-                    lst
-                    res))
+          (if (member lst (bottom popul (/ (length popul) 2)))
+              (remove-duplicates (map (lambda (arg) (if (= 0 (random 10)) (pick-random verts) arg)) lst))
               lst))
         (define (mutate-step lst num)
           (if (< num 1)
@@ -122,60 +119,59 @@
               '()
               (append (cr-ovr (car popul) (cadr popul)) (reprod (cddr popul))))))
       
-      (if (or
-           (= 0 iter)
-           (null? cycles)
-           )
-          (list (list #f))
-          (let ((res (filter (lambda (arg) (= 100 (fit arg))) popul)))
-            (if (null? res)
-                (let* (
-                       (new-popul (append popul (reprod popul)))
-                       (surv (top (mutate (top new-popul (length popul)) (get-verts graph)) (length popul)))
-                       (best (fit (car surv)))
-                       (worst (fit (list-ref surv (sub1 (length surv)))))
-                       (mean (average (map fit surv)))
-                       )
-                  (if (equal? #t enable-visual)
-                      (let* ((new-dc (new bitmap-dc% (bitmap (make-bitmap FIELD_WIDTH FIELD_HEIGHT)))) (draw (draw-graph new-dc (argmin length (filter (lambda(arg)(= (fit arg) best)) surv)) cycles)) (iter-num (add1 (- MAX_ITER iter))))
-                        (step-gen surv cycles (- iter 1) (cons new-dc dcs) (cons (list iter-num best) maxs) (cons (list iter-num worst) mins) (cons (list iter-num mean) avs)))
-                      (step-gen surv cycles (- iter 1) dcs maxs mins avs))
-                  )
-                (if (equal? #t enable-visual)
-                    (let* (
-                           ;(new-dc (new bitmap-dc% (bitmap (make-bitmap FIELD_WIDTH FIELD_HEIGHT))))
-                           ;(draw (draw-graph new-dc (argmin length res) cycles))
-                           (max-p (if (= iter MAX_ITER) (list (list 0 100)) '()))
-                           (min-p (if (= iter MAX_ITER) (list (list 0 (fit (list-ref (top popul (length popul)) (sub1 (length popul)))))) '()))
-                           (av-p (if (= iter MAX_ITER) (list (list 0 (average (map fit popul)))) '()))
-                           (graphic
-                            (parameterize
-                                (
-                                 (plot-x-far-ticks no-ticks)
-                                 (plot-y-far-ticks no-ticks)
-                                 (plot-x-ticks (linear-ticks #:divisors '(1) #:number (add1 (- MAX_ITER iter))))
-                                 )
-                              (new bitmap-dc% (bitmap
-                                               (plot-bitmap (list (axes)
-                                                                  (lines maxs #:color 2 #:label "Max")
-                                                                  (lines mins #:color 4 #:label "Min")
-                                                                  (lines avs #:color 6 #:label "Average")
-                                                                  (points max-p #:color 2)
-                                                                  (points min-p #:color 4)
-                                                                  (points av-p #:color 6)
-                                                                  )
-                                                            #:x-label "Iter num"
-                                                            #:y-label "Fit"
-                                                            #:x-min 0
-                                                            #:y-min 0 #:y-max 100
-                                                            #:legend-anchor 'bottom-right
-                                                            )
-                                               )))))
-                      (cons res (cons (cons graphic dcs) (add1 (- MAX_ITER iter)))
-                            ))
-                    res)
-                )
-            ))
+      (if 
+       (null? cycles)
+       (list (list #f))
+       (let ((res (filter (lambda (arg) (= 100 (fit arg))) popul)))
+         (if (and (null? res) (< 0 iter))
+             (let* (
+                    (new-popul (append popul (reprod popul)))
+                    (surv (top (mutate (top new-popul (length popul)) (get-verts graph)) (length popul)))
+                    (best (fit (car surv)))
+                    (worst (fit (list-ref surv (sub1 (length surv)))))
+                    (mean (average (map fit surv)))
+                    )
+               (if (equal? #t enable-visual)
+                   (let* ((new-dc (new bitmap-dc% (bitmap (make-bitmap FIELD_WIDTH FIELD_HEIGHT)))) (draw (draw-graph new-dc (argmin length (filter (lambda(arg)(= (fit arg) best)) surv)) cycles)) (iter-num (add1 (- MAX_ITER iter))))
+                     (step-gen surv cycles (- iter 1) (cons new-dc dcs) (cons (list iter-num best) maxs) (cons (list iter-num worst) mins) (cons (list iter-num mean) avs)))
+                   (step-gen surv cycles (- iter 1) dcs maxs mins avs))
+               )
+             (if (equal? #t enable-visual)
+                 (let* (
+                        ;(new-dc (new bitmap-dc% (bitmap (make-bitmap FIELD_WIDTH FIELD_HEIGHT))))
+                        ;(draw (draw-graph new-dc (argmin length res) cycles))
+                        (res (if (null? res) (list (list #f)) res))
+                        (max-p (if (= iter MAX_ITER) (list (list 0 100)) '()))
+                        (min-p (if (= iter MAX_ITER) (list (list 0 (fit (list-ref (top popul (length popul)) (sub1 (length popul)))))) '()))
+                        (av-p (if (= iter MAX_ITER) (list (list 0 (average (map fit popul)))) '()))
+                        (graphic
+                         (parameterize
+                             (
+                              (plot-x-far-ticks no-ticks)
+                              (plot-y-far-ticks no-ticks)
+                              (plot-x-ticks (linear-ticks #:divisors '(1) #:number (add1 (- MAX_ITER iter))))
+                              )
+                           (new bitmap-dc% (bitmap
+                                            (plot-bitmap (list (axes)
+                                                               (lines maxs #:color 2 #:label "Max")
+                                                               (lines mins #:color 4 #:label "Min")
+                                                               (lines avs #:color 6 #:label "Average")
+                                                               (points max-p #:color 2)
+                                                               (points min-p #:color 4)
+                                                               (points av-p #:color 6)
+                                                               )
+                                                         #:x-label "Iter num"
+                                                         #:y-label "Fit"
+                                                         #:x-min 0
+                                                         #:y-min 0 #:y-max 100
+                                                         #:legend-anchor 'bottom-right
+                                                         )
+                                            )))))
+                   (cons res (cons (cons graphic dcs) (add1 (- MAX_ITER iter)))
+                         ))
+                 res)
+             )
+         ))
       )
     (let*
         (
@@ -206,7 +202,7 @@
   (let* (
          (cycles (find-cycles graph))
          (tmp-res (start-gen cycles)))
-    (if (equal? (caar tmp-res) #f)
+    (if (and (equal? (caar tmp-res) #f) (null? cycles))
         #f
         (if (equal? #t enable-visual)
             (let* ((res (argmin length (car tmp-res))) (dcs (cadr tmp-res)) (iters (map (lambda(iter)(string-append "Iter " (~a iter))) (range (cddr tmp-res)))))
@@ -231,7 +227,7 @@
                    (paint-callback
                     (lambda (c dc)
                       (send dc set-font (send the-font-list find-or-create-font 20 'default 'normal 'normal))   
-                      (send dc draw-text (string-append "Result population:  " (~a res)) (/ FIELD_WIDTH 4) 50))
+                      (send dc draw-text (string-append "Result population:  " (if (equal? #f (car res)) "No answer" (~a res))) (/ FIELD_WIDTH 4) 50))
                     ))
               (define my-choice
                 (new choice% (parent frame)
@@ -250,27 +246,28 @@
               (send (send bmp-canvas get-dc) draw-bitmap (send (list-ref dcs 0) get-bitmap) 0 0)
               ;(send (send bmp-canvas get-dc) set-bitmap (send (list-ref dcs 0) get-bitmap))
               (send frame show #t)
-              (list (not (equal? (car res) #f)) (length res) res))
+              (if (equal? #f (car res)) #f
+                  (list (not (equal? (car res) #f)) (length res) res)))
             (let ((res (argmin length tmp-res)))
               (list (not (equal? (car res) #f)) (length res) res)))))
   )
 
 (define graph
-'(((27 . 35) (19 . 14) (33 . 4) (25 . 13) (23 . 3) (4 . 8) (22 . 26) (15 . 35) (38 . 12) (14 . 32) (10 . 39) (39 . 7) (18 . 0) (5 . 28) (30 . 25) (39 . 19) (29 . 10) (32 . 33) (0 . 38)
-            (7 . 12) (3 . 21) (24 . 12) (19 . 39) (34 . 32) (9 . 35) (27 . 11) (19 . 5) (33 . 3) (1 . 13) (0 . 17) (2 . 21) (39 . 37) (35 . 21) (32 . 19)
-            (35 . 5) (34 . 19) (20 . 13) (27 . 24) (26 . 20) (5 . 27) (24 . 26) (11 . 38) (11 . 4) (8 . 36) (14 . 9) (22 . 9) (33 . 21) (9 . 15) (25 . 35) (12 . 24) (16 . 33) (30 . 18) (24 . 32) (24 . 20)
-            (7 . 6) (11 . 16) (1 . 0) (17 . 5) (32 . 12) (31 . 6) (22 . 24) (6 . 39) (9 . 38) (7 . 39) (5 . 17) (4 . 6) (11 . 10) (1 . 15)) . 10)
+  '(((27 . 35) (19 . 14) (33 . 4) (25 . 13) (23 . 3) (4 . 8) (22 . 26) (15 . 35) (38 . 12) (14 . 32) (10 . 39) (39 . 7) (18 . 0) (5 . 28) (30 . 25) (39 . 19) (29 . 10) (32 . 33) (0 . 38)
+               (7 . 12) (3 . 21) (24 . 12) (19 . 39) (34 . 32) (9 . 35) (27 . 11) (19 . 5) (33 . 3) (1 . 13) (0 . 17) (2 . 21) (39 . 37) (35 . 21) (32 . 19)
+               (35 . 5) (34 . 19) (20 . 13) (27 . 24) (26 . 20) (5 . 27) (24 . 26) (11 . 38) (11 . 4) (8 . 36) (14 . 9) (22 . 9) (33 . 21) (9 . 15) (25 . 35) (12 . 24) (16 . 33) (30 . 18) (24 . 32) (24 . 20)
+               (7 . 6) (11 . 16) (1 . 0) (17 . 5) (32 . 12) (31 . 6) (22 . 24) (6 . 39) (9 . 38) (7 . 39) (5 . 17) (4 . 6) (11 . 10) (1 . 15)) . 10)
   )
 
 
 (define (test-gen)
-;(let* ((test-graph graph)(res (genetics-solve (car test-graph) (cdr test-graph))))
-(let* ((test-graph graph) (res (genetics-solve (car test-graph) (cdr test-graph) #t)))
-  (begin
-    (println test-graph)
-    (printf "Cycles num: ~v\n" (length (find-cycles (car test-graph))))
-    (printf "k = ~v\n" (cdr test-graph))
-    (println res)
-    )))
+  ;(let* ((test-graph (cons (gen-complete-graph 5) 4))(res (genetics-solve (car test-graph) (cdr test-graph) #t)))
+  (let* ((test-graph (gen-graph 30)) (res (genetics-solve (car test-graph) (cdr test-graph) #t)))
+    (begin
+      (println test-graph)
+      (printf "Cycles num: ~v\n" (length (find-cycles (car test-graph))))
+      (printf "k = ~v\n" (cdr test-graph))
+      (println res)
+      )))
 
 (test-gen)
