@@ -13,10 +13,6 @@
 (provide FIELD_HEIGHT)
 (provide draw-graph)
 
-;(define target (make-bitmap FIELD_WIDTH FIELD_HEIGHT))
-;(define dc (new bitmap-dc% [bitmap target]))
-;(make-object image-snip% target)
-
 (define (ellipse-point x y)
   (cons (- x POINT_RADIUS) (- y POINT_RADIUS)))
 
@@ -67,19 +63,7 @@
          vert-places
          (draw-cycles-step (cdr lst) (max rad radius) (border-offset (+ x radius radius)) y)))))
     (draw-cycles-step cycles 0 (border-offset 0) (border-offset 0)))
-  
- ; (let ((verts (foldl (lambda (arg res) (append res (list (draw-vert arg)))) '() (get-verts graph))))
-  ;  (for-each
-   ;  (lambda (edge) (draw-edge edge verts))
-    ; graph))
-  ;(draw-cycle graph '(150 . 150)  (/ (* 2 pi) (count-verts graph)) (* 10 (count-verts graph)))
   (send dc set-smoothing 'aligned)
   (let ((verts (draw-cycles cycles)))
-    ;(for-each (lambda(arg) (for-each (lambda(edge)(draw-edge edge verts)) (make-edges arg))) cycles)
     (for-each (lambda(vert) (draw-vert (car vert) (cadr vert) (caddr vert))) verts))
   )
-
-(define graph '((1 . 2) (2 . 3) (3 . 4) (4 . 1) (3 . 1)))
-;(get-verts graph)
-;(draw-graph dc '(1 2) (find-cycles (gen-complete-graph 6)))
-;(send dc draw-text (string (integer->char (+ (char->integer #\0) 5))) 50 50)

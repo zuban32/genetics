@@ -81,21 +81,10 @@
     (define (fit lst)
       (* (fit1 lst) 100))
     
-    (define (step-gen popul cycles iter dcs maxs mins avs)
-      
-      ; absolutely useless function because of memory amout it needs 
-      (define (check-cycles)
-        (begin (printf "checking cycles\n")
-               (let ((combs (comb cycles (+ k 1))))
-                 (ormap (lambda(x) (
-                                    (let ((part-combs (comb combs 2)))
-                                      (andmap (lambda(arg)(not(intersects? (car arg) (cdr arg)))) part-combs))))
-                        combs))))
-      
-      
+    (define (step-gen popul cycles iter dcs maxs mins avs) 
       (define (mutate popul verts)
         (define (mutate-person lst)
-          (if (member lst (bottom popul (/ (length popul) 5)))
+          (if (member lst (bottom popul (/ (length popul) 4)))
               (remove-duplicates (map (lambda (arg) (if (= 0 (random 10)) (pick-random verts) arg)) lst))
               lst))
         (define (mutate-step lst num)
